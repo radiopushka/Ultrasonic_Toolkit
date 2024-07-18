@@ -14,3 +14,5 @@ allows you to create DSB(dual sideband non-suppressed carrier) or AM(amplitude) 
 dependencies:
 -alsa (optional)
 -math.h
+
+a usefull program: https://github.com/radiopushka/SonicSDR
