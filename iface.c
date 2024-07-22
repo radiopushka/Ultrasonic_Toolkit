@@ -7,7 +7,7 @@
 int main(int argn, char* argv[]){
   if(argn < 5){
     printf("%s <input device> <output device> <frequency_khz> <mode r/t> [gain] [sample rate]\n", argv[0]);
-    printf("mode r - reception | mode t - transmit | mode d - DSB tx\n");
+    printf("mode r - reception | mode t - transmit | mode d - DSB tx | good gain values are like 400\n");
     return 0;
   }
 
@@ -39,7 +39,7 @@ int main(int argn, char* argv[]){
     error = aread(input);
 
     if(argv[4][0] == 'r')
-      amplitude_demodulate(input,output,1500,frequency,gain);
+      amplitude_demodulate(input,output,1500,frequency, samplerate,gain);
     else if (argv[4][0] == 'd')
       DSB_modulate(input,output,1500,frequency,gain);
     else
@@ -50,6 +50,7 @@ int main(int argn, char* argv[]){
   }
 
   clean_f_manager();
+  cleanLPF();
 
   free(input);
   free(output);

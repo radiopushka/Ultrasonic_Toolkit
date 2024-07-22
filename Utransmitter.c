@@ -1,5 +1,6 @@
 #include "Utransmitter.h"
 #include "frequencymanager.c"
+#include "LPF/high_cut.h"
 
 //frequency in khz, 1 is 1 khz
 void amplitude_modulate(short* input, short* output,int length, float freq, double gain){
@@ -40,11 +41,16 @@ void DSB_modulate(short* input, short* output,int length, float freq, double gai
 double shift_coeff = 0;
 double maxg = 0;
 double ming = 0;
+struct high_cut* filter = NULL;
 
 float again = 1;
 
-void amplitude_demodulate(short* input, short* output, int length, float freq, double gain){
+void amplitude_demodulate(short* input, short* output, int length, float freq, int rx_rate, double gain){
 
+
+  if(filter == NULL){
+    filter = init_highcut(rx_rate,3000,1,2,0.8);
+  }
 
   int i;
 
@@ -80,6 +86,7 @@ void amplitude_demodulate(short* input, short* output, int length, float freq, d
     
 
     output_prev = ( (demod + shift_coeff) * again );
+    perform_filter(output_prev,filter,&output_prev);
     output[i] = output_prev;
 
     if(avg == 100000000){
@@ -112,4 +119,9 @@ void amplitude_demodulate(short* input, short* output, int length, float freq, d
   }
   shift_coeff = -((maxg - ming)/2 + ming);
 
+}
+void cleanLPF(){
+  if(filter != NULL){
+    clear_filter(filter);
+  }
 }
