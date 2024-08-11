@@ -1,9 +1,13 @@
 #include "Utransmitter.h"
 #include "frequencymanager.c"
 #include "LPF/high_cut.h"
+struct high_cut* filter = NULL;
 
 //frequency in khz, 1 is 1 khz
 void amplitude_modulate(short* input, short* output,int length, float freq, double gain){
+  if(filter == NULL){
+    filter = init_highcut(sample_rate,3000,3,3,0.6);
+  }
 
   int i;
   double coeff = gain * 0.25;
@@ -14,13 +18,19 @@ void amplitude_modulate(short* input, short* output,int length, float freq, doub
     freqi = get_index_for_frequency(freq);
   }
 // amplitude modulation
+  double preview;
   for(i = 0; i < length; i++){
-    output[i] = (periods[freqi][i] * (24575 + input[i] * coeff));
+    preview = input[i];
+    perform_filter(preview,filter,&preview);
+    output[i] = (periods[freqi][i] * (24575 + preview * coeff));
   }
 
 }
 
 void DSB_modulate(short* input, short* output,int length, float freq, double gain){
+  if(filter == NULL){
+    filter = init_highcut(sample_rate,3000,3,3,0.6);
+  }
 
   int i;
   double coeff = gain * 0.5;
@@ -31,8 +41,11 @@ void DSB_modulate(short* input, short* output,int length, float freq, double gai
     freqi = get_index_for_frequency(freq);
   }
 // amplitude modulation
+  double preview;
   for(i = 0; i < length; i++){
-    output[i] = (periods[freqi][i] * (16383 + input[i] * coeff));
+    preview = input[i];
+    perform_filter(preview,filter,&preview);
+    output[i] = (periods[freqi][i] * (16383 + preview * coeff));
   }
 
 }
@@ -41,15 +54,14 @@ void DSB_modulate(short* input, short* output,int length, float freq, double gai
 double shift_coeff = 0;
 double maxg = 0;
 double ming = 0;
-struct high_cut* filter = NULL;
 
 float again = 1;
 
-void amplitude_demodulate(short* input, short* output, int length, float freq, int rx_rate, double gain){
+void amplitude_demodulate(short* input, short* output, int length, float freq, double gain){
 
 
   if(filter == NULL){
-    filter = init_highcut(rx_rate,3000,1,2,0.8);
+    filter = init_highcut(sample_rate,3000,3,3,0.6);
   }
 
   int i;
@@ -98,12 +110,12 @@ void amplitude_demodulate(short* input, short* output, int length, float freq, i
 
   }
 
-  if(avg > 9383){
+  if(avg > 9000){
     again = again - 1;
     if(again < 1){
       again = 1;
     }
-  }else if(avg < 9383){
+  }else if(avg < 9000){
     again = again + 0.1;
     if(again > gain){
       again = gain;

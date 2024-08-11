@@ -39,11 +39,12 @@ int main(int argn, char* argv[]){
     error = aread(input);
 
     if(argv[4][0] == 'r')
-      amplitude_demodulate(input,output,1500,frequency, samplerate,gain);
+      amplitude_demodulate(input,output,1500,frequency, gain);
     else if (argv[4][0] == 'd')
       DSB_modulate(input,output,1500,frequency,gain);
     else
       amplitude_modulate(input, output,1500,frequency,gain);
+    sync_record(10000);
 
     awrite(output);
 

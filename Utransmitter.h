@@ -4,7 +4,7 @@
 void amplitude_modulate(short* input, short* output, int length, float frequency, double gain);
 void DSB_modulate(short* input, short* output, int length, float frequency, double gain);
 
-void amplitude_demodulate(short* input, short* output, int length, float frequency, int rx_rate, double gain);
+void amplitude_demodulate(short* input, short* output, int length, float frequency,  double gain);
 
 //----
 //
