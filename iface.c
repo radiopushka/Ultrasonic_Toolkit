@@ -16,6 +16,8 @@ int main(int argn, char* argv[]){
   if(argv[6] != NULL){
     samplerate = atoi(argv[6]);
   }
+  if(samplerate < 48000)
+    samplerate = 48000;
 
   init_f_manager(1500, samplerate);
 
@@ -24,8 +26,12 @@ int main(int argn, char* argv[]){
 
   if(argv[5] != NULL)
     gain = atof(argv[5]);
+  if(gain <= 0)
+    gain = 1;
+
 
   double frequency = atof(argv[3]);
+  printf("gain: %f, rate: %d, frequency: %fkhz\n",gain,samplerate,frequency);
 
   int status = setup_alsa(argv[1], argv[2], 1500, samplerate);
 

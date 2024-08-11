@@ -28,6 +28,8 @@ int main(int argn, char* argv[]){
 
   if(argv[5] != NULL)
     gain = atof(argv[5]);
+  if(gain <= 0)
+    gain = 1;
 
   double frequency = atof(argv[3]);
 
