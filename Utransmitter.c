@@ -7,7 +7,7 @@ struct high_cut* filtertx = NULL;
 //frequency in khz, 1 is 1 khz
 void amplitude_modulate(short* input, short* output,int length, float freq, double gain){
   if(filtertx == NULL){
-    filtertx = init_highcut(sample_rate,6000,3,3,0.5);
+    filtertx = init_highcut(sample_rate,6000,3,2,0.5);
   }
 
   int i;
@@ -30,7 +30,7 @@ void amplitude_modulate(short* input, short* output,int length, float freq, doub
 
 void DSB_modulate(short* input, short* output,int length, float freq, double gain){
   if(filtertx == NULL){
-    filtertx = init_highcut(sample_rate,6000,3,3,0.5);
+    filtertx = init_highcut(sample_rate,6000,3,2,0.5);
   }
 
   int i;
