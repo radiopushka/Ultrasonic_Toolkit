@@ -2,11 +2,12 @@
 #include "frequencymanager.c"
 #include "LPF/high_cut.h"
 struct high_cut* filter = NULL;
+struct high_cut* filtertx = NULL;
 
 //frequency in khz, 1 is 1 khz
 void amplitude_modulate(short* input, short* output,int length, float freq, double gain){
-  if(filter == NULL){
-    filter = init_highcut(sample_rate,3000,3,3,0.6);
+  if(filtertx == NULL){
+    filtertx = init_highcut(sample_rate,6000,3,3,0.5);
   }
 
   int i;
@@ -21,15 +22,15 @@ void amplitude_modulate(short* input, short* output,int length, float freq, doub
   double preview;
   for(i = 0; i < length; i++){
     preview = input[i];
-    perform_filter(preview,filter,&preview);
+    perform_filter(preview,filtertx,&preview);
     output[i] = (periods[freqi][i] * (24575 + preview * coeff));
   }
 
 }
 
 void DSB_modulate(short* input, short* output,int length, float freq, double gain){
-  if(filter == NULL){
-    filter = init_highcut(sample_rate,3000,3,3,0.6);
+  if(filtertx == NULL){
+    filtertx = init_highcut(sample_rate,6000,3,3,0.5);
   }
 
   int i;
@@ -44,7 +45,7 @@ void DSB_modulate(short* input, short* output,int length, float freq, double gai
   double preview;
   for(i = 0; i < length; i++){
     preview = input[i];
-    perform_filter(preview,filter,&preview);
+    perform_filter(preview,filtertx,&preview);
     output[i] = (periods[freqi][i] * (16383 + preview * coeff));
   }
 
@@ -136,4 +137,8 @@ void cleanLPF(){
   if(filter != NULL){
     clear_filter(filter);
   }
+  if(filtertx != NULL){
+    clear_filter(filtertx);
+  }
+
 }
