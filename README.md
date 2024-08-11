@@ -7,6 +7,7 @@ you can run make to compile both tools
 run "make futx" to only compile the file to file tool
 
 run "make utx" to only compile the real-time tool (Linux only, requires Alsa)
+- you can use it as a secret two way radio
 
 allows you to create DSB(dual sideband non-suppressed carrier) or AM(amplitude) modulation on any audio frequency of the audio present in an audio file. designed for use with ultrasound.
 
