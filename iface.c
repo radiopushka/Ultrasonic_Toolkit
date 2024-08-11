@@ -39,6 +39,11 @@ int main(int argn, char* argv[]){
   if(gain <= 0)
     gain = 1;
 
+  if(argv[4][0] == 'r'){
+    if(gain == 1)
+      gain = 400;
+  }
+
 
   double frequency = atof(argv[3]);
   printf("gain: %f, buffer size: %d, rate: %d, frequency: %fkhz\n",gain, bsize,samplerate,frequency);
