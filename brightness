@@ -1,9 +1,0 @@
-#!/bin/bash
-curval=$(cat /sys/class/backlight/intel_backlight/brightness)
-brightness=$(dialog --rangebox "brightness" 20 50 1 200 $curval --stdout)
-if [ -z $brightness ]
-then
-        echo "not set"
-else
-        su -c "echo $brightness > /sys/class/backlight/intel_backlight/brightness"
-fi
