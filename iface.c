@@ -10,7 +10,7 @@ int main(int argn, char* argv[]){
     printf("mode r - AM demodulate| mode b - DSB demodulate | mode t - transmit | mode d - DSB tx | good gain values are like 400\n");
     return 0;
   }
-  int bsize = 1500;
+  int bsize = 40000;
 
   int samplerate = 48000;
 
