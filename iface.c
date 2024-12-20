@@ -12,6 +12,7 @@ int main(int argn, char* argv[]){
   }
   int bsize = 40000;
 
+
   int samplerate = 48000;
 
   if(argv[7] != NULL){
