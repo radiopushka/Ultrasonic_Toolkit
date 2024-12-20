@@ -49,8 +49,8 @@ void declip(int* input,int length){
   }
 
   float factor=1;
-  if(max > 30000){
-    factor = max/30000.0;
+  if(max > 25000){
+    factor = max/25000.0;
   }
  for(int i =0 ;i < length;i++){
     input[i]=input[i]/factor;
