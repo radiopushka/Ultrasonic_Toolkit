@@ -11,6 +11,7 @@ void drain_incomming();
 void drain_exiting();
 void sync_record(int retime);
 void sync_play(int retime);
+void sync_interfaces();
 
 
 #endif // !ALSAI

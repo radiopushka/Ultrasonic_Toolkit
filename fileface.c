@@ -53,6 +53,7 @@ int main(int argn, char* argv[]){
     dchannel2 = malloc(sizeof(short) * 1500);
   }
   short* output = malloc(sizeof(short) * (1500));
+  int* output_t = malloc(sizeof(short) * (1500));
   int error = 0;
   unsigned int i;
   int i2;
@@ -86,11 +87,14 @@ int main(int argn, char* argv[]){
     }
 
     if(argv[4][0] == 'r')
-      amplitude_demodulate(input,output,1500,frequency,gain);
+      amplitude_demodulate(input,output_t,1500,frequency,gain);
     else if (argv[4][0] == 'd')
-      DSB_modulate(input,output,1500,frequency,gain);
+      DSB_modulate(input,output_t,1500,frequency,gain);
     else
-      amplitude_modulate(input, output,1500,frequency,gain);
+      amplitude_modulate(input, output_t,1500,frequency,gain);
+
+    declip(output_t,1500);
+    int_to_short_buff(output_t,1500,output);
 
     fwrite(output, sizeof(short), 1500, out);
 
