@@ -1,13 +1,13 @@
 #include "Utransmitter.h"
 #include "frequencymanager.c"
-#include "LPF/high_cut.h"
-struct high_cut* filter = NULL;
-struct high_cut* filtertx = NULL;
+#include "RC/rc.h"
+rc_filter_info* filter = NULL;
+rc_filter_info* filtertx = NULL;
 
 //frequency in khz, 1 is 1 khz
 void amplitude_modulate(short* input, int* output,int length, float freq, double gain){
   if(filtertx == NULL){
-    filtertx = init_highcut(sample_rate,6000,3,2,0.5);
+    filtertx = create_rc_filter(1000,sample_rate,0);
   }
 
   int i;
@@ -19,10 +19,10 @@ void amplitude_modulate(short* input, int* output,int length, float freq, double
     freqi = get_index_for_frequency(freq);
   }
 // amplitude modulation
-  double preview;
+  int preview;
   for(i = 0; i < length; i++){
     preview = input[i];
-    perform_filter(preview,filtertx,&preview);
+    preview=do_rc_filter(filtertx,preview);
     output[i] = (periods[freqi][i] * (16383 + preview * coeff));
   }
 
@@ -60,7 +60,7 @@ void declip(int* input,int length){
 
 void DSB_modulate(short* input, int* output,int length, float freq, double gain){
   if(filtertx == NULL){
-    filtertx = init_highcut(sample_rate,6000,3,2,0.5);
+    filtertx = create_rc_filter(1000,sample_rate,0);
   }
 
   int i;
@@ -72,10 +72,10 @@ void DSB_modulate(short* input, int* output,int length, float freq, double gain)
     freqi = get_index_for_frequency(freq);
   }
 // amplitude modulation
-  double preview;
+  int preview;
   for(i = 0; i < length; i++){
     preview = input[i];
-    perform_filter(preview,filtertx,&preview);
+    preview=do_rc_filter(filtertx,preview);
     output[i] = (periods[freqi][i] * (preview * coeff));
   }
 
@@ -96,7 +96,8 @@ void DSB_demodulate(short* input, int* output, int length, float freq, double ga
 
 
   if(filter == NULL){
-    filter = init_highcut(playback_rate,6000,3,3,0.6);
+    filter = create_rc_filter(3000,playback_rate,0);
+
   }
 
   int i;
@@ -132,7 +133,7 @@ void DSB_demodulate(short* input, int* output, int length, float freq, double ga
 
       output_prev = ( ((demod_sum)/(playback_sample_rate)) * again );
       demod_sum=0;
-      perform_filter(output_prev,filter,&output_prev);
+      output_prev=do_rc_filter(filter,output_prev);
       output[i] = output_prev;
       old= output_prev;
 
@@ -174,7 +175,7 @@ void amplitude_demodulate(short* input, int* output, int length, float freq, dou
 
 
   if(filter == NULL){
-    filter = init_highcut(sample_rate,5000,3,3,0.6);
+    filter = create_rc_filter(3000,playback_rate,0);
   }
 
   int i;
@@ -207,7 +208,7 @@ void amplitude_demodulate(short* input, int* output, int length, float freq, dou
     //perform_filter(output_prev,filter,&output_prev);
     if(i%playback_sample_rate==0){
       output_prev = ( (demod_sum/playback_sample_rate - shift_coeff) * again );
-      perform_filter(output_prev,filter,&output_prev);
+      output_prev=do_rc_filter(filter,output_prev);
       output[i] = output_prev;
       old=output_prev;
 
@@ -243,10 +244,10 @@ void amplitude_demodulate(short* input, int* output, int length, float freq, dou
 }
 void cleanLPF(){
   if(filter != NULL){
-    clear_filter(filter);
+    free_rc_filter(filter);
   }
   if(filtertx != NULL){
-    clear_filter(filtertx);
+    free_rc_filter(filtertx);
   }
 
 }

@@ -1,5 +1,5 @@
 #include "Utransmitter.h"
-#include "alsa/alsa.h"
+#include "alsa_pipe/alsa_pipe.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
@@ -10,7 +10,7 @@ int main(int argn, char* argv[]){
     printf("mode r - AM demodulate| mode b - DSB demodulate | mode t - transmit | mode d - DSB tx | good gain values are like 400\n");
     return 0;
   }
-  int bsize = 40000;
+  int bsize = 1500;
 
 
   int samplerate = 48000;
@@ -22,8 +22,8 @@ int main(int argn, char* argv[]){
   if(argv[5] != NULL)
     bsize = atoi(argv[5]);
 
-  if(bsize < 1000)
-    bsize = 1000;
+  if(bsize < 1500)
+    bsize = 1500;
 
 
   if(samplerate < 48000)
@@ -48,18 +48,35 @@ int main(int argn, char* argv[]){
   double frequency = atof(argv[3]);
   printf("gain: %f, buffer size: %d, rate: %d, frequency: %fkhz\n",gain, bsize,samplerate,frequency);
 
-  int status = setup_alsa(argv[1], argv[2], bsize, samplerate);
+  int channelsin=1;
+  int channelsout=1;
+
+  int rate_in=samplerate;
+  int rate_out=samplerate;
+
+  int status = setup_alsa_pipe(argv[1], argv[2],&channelsin, &channelsout,&rate_in,&rate_out,bsize);
   
   if( status < 0)
     return 0;
 
+  printf("input channels: %d output: %d\n",channelsin,channelsout);
+
+  if(channelsin>1 || channelsout>1){
+    printf("please get ALSA do down mix both ports to mono\n");
+    printf("currently down mixing is not supported\n");
+    printf("but if you want to help, by all means!\n");
+    return 0;
+  }
+
   short* input = malloc(sizeof(short) * (bsize));
   int* output_t = malloc(sizeof(int) * (bsize));
   short* output = malloc(sizeof(short) * (bsize));
+  short* output_e=output+bsize;
+  short caseiv[bsize];
+  short caseiv2[bsize];
   int error = 0;
-  sync_interfaces();
   while( error != -1){
-    error = aread(input);
+    error = get_audio(input);
 
     if(argv[4][0] == 'r')
       amplitude_demodulate(input,output_t,bsize,frequency, gain);
@@ -76,17 +93,33 @@ int main(int argn, char* argv[]){
     int_to_short_buff(output_t,bsize,output);
     //sync_record(record_sleep);
 
-    awrite(output);
+    //channel mixing
+    if(channelsin==1 && channelsout==2){
+       int count=0;
+       for(short* tbuff=output;tbuff<output_e;tbuff++){
+        if(count<bsize){
+          caseiv[count++]=*tbuff;
+          caseiv[count++]=*tbuff;
+        }else{
+          caseiv2[bsize-(count++)]=*tbuff;
+          caseiv2[bsize-(count++)]=*tbuff;
+
+        }
+      }
+      queue_audio(caseiv);
+      queue_audio(caseiv2);
+    }else{
+      queue_audio(output);
+    }
 
   }
   printf("error\n");
 
   clean_f_manager();
-  cleanLPF();
 
   free(input);
   free(output);
-  free_alsa();
+  alsa_pipe_exit();
 
   return 0;
 }
