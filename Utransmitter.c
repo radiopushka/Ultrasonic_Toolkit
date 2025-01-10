@@ -96,7 +96,7 @@ void DSB_demodulate(short* input, int* output, int length, float freq, double ga
 
 
   if(filter == NULL){
-    filter = create_rc_filter(3000,playback_rate,0);
+    filter = create_rc_filter(1000,playback_rate,0);
 
   }
 
@@ -175,7 +175,7 @@ void amplitude_demodulate(short* input, int* output, int length, float freq, dou
 
 
   if(filter == NULL){
-    filter = create_rc_filter(3000,playback_rate,0);
+    filter = create_rc_filter(1000,playback_rate,0);
   }
 
   int i;
